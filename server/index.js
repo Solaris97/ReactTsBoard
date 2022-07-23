@@ -3,7 +3,11 @@ const cors = require('cors');
 const app = express();
 const mysql = require("mysql");
 const PORT = process.env.port || 8000;
+const bodyParser = require("body-parser");
 
+
+app.use(express.json());
+app.use(bodyParser.urlencoded({ extended: true }));
 
 let corsOptions = {
   origin: "*", // 출처 허용 옵션
@@ -30,6 +34,25 @@ app.get("/", (req, res) => {
 app.get("/list", (req, res) => {
   const sqlQuery = "SELECT BOARD_ID,BOARD_TITLE,REGISTER_ID,DATE_FORMAT(REGISTER_DATE,'%Y-%m-%d') AS REGISTER_DATE FROM BOARD;"; //게시글 목록 조회
   db.query(sqlQuery, (err, result) => {
+    res.send(result);
+  });
+});
+
+app.post("/insert",(req,res) => {
+  var title = req.body.title;
+  var content = req.body.content;
+  const sqlQuery = "INSERT INTO BOARD (BOARD_TITLE, BOARD_CONTENT, REGISTER_ID) VALUES (?,?,'Solaris');";
+  db.query(sqlQuery,[title,content],(err,result) => {
+    console.log(result);
+    res.send(result);
+  });
+});
+
+app.post("/update",(req,res) => {
+  var title = req.body.title;
+  var content = req.body.content;
+  const sqlQuery = "UPDATE BOARD SET TITLE = ?, BOARD_CONTENT = ?,UPDATER_ID) FROM (?,?,'Solaris');";
+  db.query(sqlQuery,[title,content],(err,result) => {
     res.send(result);
   });
 });
