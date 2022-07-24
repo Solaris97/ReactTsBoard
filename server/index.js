@@ -38,22 +38,32 @@ app.get("/list", (req, res) => {
   });
 });
 
+app.get("/detail", (req, res) => {
+  const sqlQuery = "SELECT BOARD_ID,BOARD_TITLE,REGISTER_ID,DATE_FORMAT(REGISTER_DATE,'%Y-%m-%d') AS REGISTER_DATE FROM BOARD;"; //게시글 목록 조회
+  db.query(sqlQuery, (err, result) => {
+    res.send(result);
+  });
+});
+
 app.post("/insert",(req,res) => {
   var title = req.body.title;
   var content = req.body.content;
   const sqlQuery = "INSERT INTO BOARD (BOARD_TITLE, BOARD_CONTENT, REGISTER_ID) VALUES (?,?,'Solaris');";
   db.query(sqlQuery,[title,content],(err,result) => {
-    console.log(result);
     res.send(result);
+    console.log(result);
+
   });
 });
 
 app.post("/update",(req,res) => {
   var title = req.body.title;
   var content = req.body.content;
-  const sqlQuery = "UPDATE BOARD SET TITLE = ?, BOARD_CONTENT = ?,UPDATER_ID) FROM (?,?,'Solaris');";
-  db.query(sqlQuery,[title,content],(err,result) => {
+  var boardId = req.body.id;
+  const sqlQuery = "UPDATE BOARD SET BOARD_TITLE = ?, BOARD_CONTENT = ?,UPDATER_ID = 'Solaris' WHERE BOARD_ID = ?;";
+  db.query(sqlQuery,[title,content,boardId],(err,result) => {
     res.send(result);
+    console.log(err);
   });
 });
 

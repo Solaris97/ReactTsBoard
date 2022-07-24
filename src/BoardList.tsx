@@ -8,16 +8,24 @@ const Board = ({
     title,
     registerId,
     registerDate,
+    props,
 }: {
     id: number;
     title: string;
     registerId: string;
     registerDate: string;
+    props: any;
 }) => {
     return (
         <tr>
             <td>
-                <input type="checkbox"></input>
+                <input
+                    type="checkbox"
+                    value={id}
+                    onChange={(e) => {
+                        props.onCheckboxChange(e.currentTarget.checked, e.currentTarget.value);
+                    }}
+                ></input>
             </td>
             <td>{id}</td>
             <td>{title}</td>
@@ -27,12 +35,31 @@ const Board = ({
     );
 };
 
+interface IProps {
+    isComplete: boolean;
+    handleModify: any;
+    renderComplete: any;
+}
+
 /**
  * BoardList class
+ * @param {SS} e
  */
-class BoardList extends Component {
+class BoardList extends Component<IProps> {
+    /**
+     * @param {SS} props
+     */
+    constructor(props: any) {
+        super(props);
+        this.state = {
+            boardList: [],
+            checkList: [],
+        };
+    }
+
     state = {
         boardList: [],
+        checkList: [],
     };
 
     getList = () => {
@@ -42,10 +69,29 @@ class BoardList extends Component {
                 this.setState({
                     boardList: data,
                 });
+                this.props.renderComplete();
             })
             .catch((e) => {
                 console.error(e);
             });
+    };
+
+    /**
+     * @param {boolean} checked
+     * @param {any} id
+     */
+    onCheckboxChange = (checked: boolean, id: any) => {
+        const list: Array<string> = this.state.checkList.filter((v) => {
+            return v != id;
+        });
+
+        if (checked) {
+            list.push(id);
+        }
+
+        this.setState({
+            checkList: list,
+        });
     };
 
     /**
@@ -55,12 +101,18 @@ class BoardList extends Component {
     }
 
     /**
+     */
+    componentDidUpdate() {
+        if (!this.props.isComplete) {
+            this.getList();
+        }
+    }
+
+    /**
      * @return {Component} Component
      */
     render() {
-        // eslint-disable-next-line
         const { boardList }: { boardList: any } = this.state;
-        console.log(boardList);
 
         return (
             <div>
@@ -75,23 +127,29 @@ class BoardList extends Component {
                         </tr>
                     </thead>
                     <tbody>
-                        {
-                            // eslint-disable-next-line
-                            boardList.map((v: any) => {
-                                return (
-                                    <Board
-                                        id={v.BOARD_ID}
-                                        title={v.BOARD_TITLE}
-                                        registerId={v.REGISTER_ID}
-                                        registerDate={v.REGISTER_DATE}
-                                        key={v.BOARD_ID}
-                                    />
-                                );
-                            })}
+                        {boardList.map((v: any) => {
+                            return (
+                                <Board
+                                    id={v.BOARD_ID}
+                                    title={v.BOARD_TITLE}
+                                    registerId={v.REGISTER_ID}
+                                    registerDate={v.REGISTER_DATE}
+                                    key={v.BOARD_ID}
+                                    props={this}
+                                />
+                            );
+                        })}
                     </tbody>
                 </Table>
                 <Button variant="info">글쓰기</Button>
-                <Button variant="secondary">수정하기</Button>
+                <Button
+                    variant="secondary"
+                    onClick={() => {
+                        this.props.handleModify(this.state.checkList);
+                    }}
+                >
+                    수정하기
+                </Button>
                 <Button variant="danger">삭제하기</Button>
             </div>
         );
