@@ -76,6 +76,29 @@ class BoardList extends Component<IProps> {
             });
     };
 
+    handleDelete = () => {
+        if (this.state.checkList.length == 0) {
+            alert("삭제할 게시글을 선택하세요.");
+            return;
+        }
+    
+        let boardIdList = "";
+    
+        this.state.checkList.forEach((v: any) => {
+            boardIdList += `'${v}',`;
+        });
+    
+        Axios.post("http://localhost:8000/delete", {
+            boardIdList: boardIdList.substring(0, boardIdList.length - 1),
+        })
+            .then(() => {
+                this.getList();
+            })
+            .catch((e) => {
+                console.error(e);
+            });
+    };
+    
     /**
      * @param {boolean} checked
      * @param {any} id
@@ -150,7 +173,7 @@ class BoardList extends Component<IProps> {
                 >
                     수정하기
                 </Button>
-                <Button variant="danger">삭제하기</Button>
+                <Button variant="danger" onClick={this.handleDelete}>삭제하기</Button>
             </div>
         );
     }
