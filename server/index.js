@@ -75,6 +75,7 @@ app.post("/delete", (req, res) => {
     console.log(err);
     res.send(result);
   });
+});
 
 app.listen(PORT, () => {
   console.log(`running on port ${PORT}`);
